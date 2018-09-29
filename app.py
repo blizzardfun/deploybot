@@ -10,41 +10,41 @@ matplotlib.use("Agg")
 
 
 # Uncomment the following to test the script locally:
-# from config import consumer_key, consumer_secret, access_token, access_token_secret
+from config import consumer_key, consumer_secret, access_token, access_token_secret
 
-# Get config variable from environment variables
-consumer_key = os.environ.get("consumer_key")
-consumer_secret = os.environ.get("consumer_secret")
-access_token = os.environ.get("access_token")
-access_token_secret = os.environ.get("access_token_secret")
+# # Get config variable from environment variables
+# consumer_key = os.environ.get("consumer_key")
+# consumer_secret = os.environ.get("consumer_secret")
+# access_token = os.environ.get("access_token")
+# access_token_secret = os.environ.get("access_token_secret")
 
 # Setup Tweepy API Authentication
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
-
+search_after=0
 # Load model
-nlp = en_core_web_sm.load()
+nlp = spacy.load('C:/Users/blizz/Anaconda3/envs/PythonData/lib/site-packages/en_core_web_md/en_core_web_md-2.0.0') 
 
-
-def update_twitter():
+def update_twitter(newest_tweet):
 
     # Create dictionary to hold text and label entities
     tweet_dict = {"text": [], "label": []}
-
-    mentions = api.search(q="@Data_Guru_Paul Analyze:")
-    print(mentions)
     words = []
     try:
-        command = mentions["statuses"][0]["text"]
-        words = command.split("Analyze:")
-        target_account = words[1].strip()
+        mentions = api.search(q="@blizzardfun1 Analyze:",since_id=newest_tweet)
+    # print(mentions)
+        newest_tweet=mentions["statuses"][0]["id"]
+        command = mentions["statuses"][0]["text"]     # get tweet text
+        words = command.split("Analyze:")                # split text on "analyze"
+        print(words)
+        target_account = words[1].strip()               #save 2nd word as target
         print(f"analysis for target_account: {target_account}")
-        user_tweets = api.user_timeline(target_account, page=1)
+        user_tweets = api.user_timeline(target_account, count=20)  # search with target as screen_name 
 
         # Loop through tweets
         for tweet in user_tweets:
-
+            print(tweet["text"])
             # Use nlp on each tweet
             doc = nlp(tweet["text"])
 
@@ -72,34 +72,38 @@ def update_twitter():
         api.update_with_media(
             "box.png", "Break down of tweet labels for " + target_account
         )
-    except Exception:
-        raise
+    except:   # Exception:
+        print("Error")
+    #    raise
 
     # Grab Self Tweets
-    tweets = api.user_timeline()
+   # tweets = api.user_timeline()
 
     # Confirm the target account has never been tweeted before
-    repeat = False
+    #repeat = False
 
-    for tweet in tweets:
-        if target_account in tweet["text"]:
-            repeat = True
-            print("Sorry. Repeat detected!")
+    # for tweet in tweets:
+    #     if target_account in tweet["text"]:
+    #         repeat = True
+    #         print("Sorry. Repeat detected!")
 
-        else:
-            continue
+    #     else:
+    #         continue
+    return newest_tweet
 
+# # Have the Twitter bot update once a day for a week
+# days = 0
+# while days < 7:
+#     print(f"This is just daily Tweet # {days} to check-in. Have a nice day!")
 
-# Have the Twitter bot update once a day for a week
-days = 0
-while days < 7:
-    print(f"This is just daily Tweet # {days} to check-in. Have a nice day!")
+#     # Update the twitter
+#     search_after=update_twitter(search_after)
 
-    # Update the twitter
-    update_twitter()
+#     # Wait a day
+#     time.sleep(10)
 
-    # Wait a day
-    time.sleep(300)
-
-    # Update day counter
-    days += 1
+#     # Update day counter
+#     days += 1
+search_after=update_twitter(search_after)
+time.sleep(60)
+search_after=update_twitter(search_after)
