@@ -33,7 +33,6 @@ def update_twitter():
     tweet_dict = {"text": [], "label": []}
 
     mentions = api.search(q="@blizzardfun1 Analyze:")
-    print(mentions)
     words = []
     try:
         command = mentions["statuses"][0]["text"]
@@ -68,9 +67,8 @@ def update_twitter():
         bar = label_frequency.plot.bar()
         fig = bar.get_figure()
         fig.savefig("box.png")
-        api.update_with_media(
-            "box.png", "Break down of tweet labels for " + target_account
-        )
+ #       api.update_with_media(
+         print("box.png", "Break down of tweet labels for " + target_account )
     except Exception:
         raise
 
