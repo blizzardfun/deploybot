@@ -68,7 +68,7 @@ def update_twitter():
         fig = bar.get_figure()
         fig.savefig("box.png")
  #       api.update_with_media(
-         print("box.png", "Break down of tweet labels for " + target_account )
+        print("box.png", "Break down of tweet labels for " + target_account )
     except Exception:
         raise
 
